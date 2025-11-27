@@ -106,6 +106,66 @@ vector<vector<Nodo*>> construirGrafo(const vector<vector<int>>& mapa) {
 }
 
 /// ===============================
+/// Leer Archivo con mapa con i (inicio) y f (fin)
+/// ===============================
+vector<vector<int>> leerMapa(const string& archivo,
+                             pair<int,int>& inicio,
+                             pair<int,int>& fin)
+{
+    ifstream arch(archivo);
+    if (!arch.is_open()) {
+        cerr << "Error al abrir " << archivo << endl;
+        return {};
+    }
+
+    vector<vector<int>> mapa;
+    string linea;
+
+    int fila = 0;
+    bool hayInicio = false, hayFin = false;
+
+    while (getline(arch, linea)) {
+        if (linea.empty()) continue;
+
+        vector<int> filaMapa;
+        for (int col = 0; col < (int)linea.size(); col++) {
+            char c = linea[col];
+
+            if (c == '.') filaMapa.push_back(0);
+            else if (c == '#') filaMapa.push_back(1);
+            else if (c == 'i') {
+                filaMapa.push_back(0);
+                inicio = {fila, col};
+                hayInicio = true;
+            }
+            else if (c == 'f') {
+                filaMapa.push_back(0);
+                fin = {fila, col};
+                hayFin = true;
+            }
+            else if (c == ' ') {
+                cout<< "Hay un espacio demas!!!\n";
+                return {};
+            }
+            else {
+                cout << "Caracter invalido en el mapa!!!\n" << c << endl;
+                return {};
+            }
+        }
+
+        mapa.push_back(filaMapa);
+        fila++;
+    }
+
+    if (!hayInicio || !hayFin) {
+        cerr << "ERROR: El mapa debe incluir 'i' y 'f'." << endl;
+        return {};
+    }
+
+    return mapa;
+}
+
+/// ===============================
 /// Algoritmo A*
 /// ===============================
 vector<Paso> A_Estrella(Nodo* inicio, Nodo* fin) {
@@ -144,6 +204,7 @@ vector<Paso> A_Estrella(Nodo* inicio, Nodo* fin) {
 /// Programa principal
 /// ===============================
 int main() {
+    /*
     vector<vector<int>> mapa = {
         {0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0},
@@ -152,15 +213,24 @@ int main() {
         {0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0}
     };
+    */
+    pair<int,int> inicioPos, finPos;
+    vector<vector<int>> mapa = leerMapa("mapa1.txt", inicioPos, finPos);
+
+    if (mapa.empty()) {
+        cout << "Mapa vacio o incorrecto.\n";
+        return 0;
+    }
 
     auto nodos = construirGrafo(mapa);
-    Nodo* inicio = nodos[3][1];
-    Nodo* fin    = nodos[1][4];
+
+    Nodo* inicio = nodos[inicioPos.first][inicioPos.second];
+    Nodo* fin    = nodos[finPos.first][finPos.second];
 
     auto camino = A_Estrella(inicio, fin);
 
     if(camino.empty())
-        cout << "No se encontró camino.\n";
+        cout << "No se encontro camino.\n";
     else {
         cout << "      <<< Camino encontrado>>>\n\n";
         cout<<  "Coordenada |    G    |      H     |    F\n";
