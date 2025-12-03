@@ -60,6 +60,69 @@ bool bloqueadoDiagonal(int x, int y, int dx, int dy, const vector<vector<int>>& 
 }
 
 /// =====================================
+/// Leer mapa desde archivo con i (inicio) y f (fin)
+/// =====================================
+vector<vector<int>> leerMapa(const string& archivo,
+                             pair<int,int>& inicio,
+                             pair<int,int>& fin)
+{
+    ifstream arch(archivo);
+    if (!arch.is_open()) {
+        cerr << "Error al abrir " << archivo << endl;
+        return {};
+    }
+
+    vector<vector<int>> mapa;
+    string linea;
+
+    int fila = 0;
+    bool hayInicio = false, hayFin = false;
+
+    while (getline(arch, linea)) {
+
+        if (linea.empty()) continue;
+
+        vector<int> filaMapa;
+
+        for (int col = 0; col < (int)linea.size(); col++) {
+            char c = linea[col];
+
+            if (c == '.') filaMapa.push_back(0);
+            else if (c == '#') filaMapa.push_back(1);
+            else if (c == 'i') {
+                filaMapa.push_back(0);
+                inicio = {fila, col};
+                hayInicio = true;
+            }
+            else if (c == 'f') {
+                filaMapa.push_back(0);
+                fin = {fila, col};
+                hayFin = true;
+            }
+            else if (c == ' ') {
+                cerr << "Hay un espacio de mas en el mapa.\n";
+                return {};
+            }
+            else {
+                cerr << "Caracter inválido en el mapa: " << c << endl;
+                return {};
+            }
+        }
+
+        mapa.push_back(filaMapa);
+        fila++;
+    }
+
+    if (!hayInicio || !hayFin) {
+        cerr << "ERROR: El mapa debe incluir 'i' y 'f'.\n";
+        return {};
+    }
+
+    return mapa;
+}
+
+
+/// =====================================
 /// Algoritmo A*
 /// =====================================
 vector<Paso> A_estrella_lista(const vector<vector<int>>& mapa, pair<int,int> inicio, pair<int,int> fin) {
@@ -116,18 +179,17 @@ vector<Paso> A_estrella_lista(const vector<vector<int>>& mapa, pair<int,int> ini
 /// Programa principal
 /// =====================================
 int main() {
-    vector<vector<int>> mapa = {
-        {0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0}
-    };
+    pair<int,int> inicio, fin;
 
-    pair<int,int> inicio = {3, 1};
-    pair<int,int> fin    = {1, 4};
+    // Leer mapa desde archivo
+    vector<vector<int>> mapa = leerMapa("mapa10.txt", inicio, fin);
 
+    if (mapa.empty()) {
+        cout << "Mapa inválido.\n";
+        return 0;
+    }
+
+    // Ejecutar A*
     auto camino = A_estrella_lista(mapa, inicio, fin);
 
     if (camino.empty()) {
@@ -146,3 +208,4 @@ int main() {
 
     return 0;
 }
+

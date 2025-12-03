@@ -215,7 +215,7 @@ int main() {
     };
     */
     pair<int,int> inicioPos, finPos;
-    vector<vector<int>> mapa = leerMapa("mapa1.txt", inicioPos, finPos);
+    vector<vector<int>> mapa = leerMapa("mapa10.txt", inicioPos, finPos);
 
     if (mapa.empty()) {
         cout << "Mapa vacio o incorrecto.\n";
